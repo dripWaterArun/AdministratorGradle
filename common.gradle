@@ -49,8 +49,8 @@ ext {
     plugins = [
             idea:'idea',
             java:'java',
-            maven:'maven',
             groovy:'groovy',
+            maven:'maven-publish',
             library:'java-library',
             boot:'org.springframework.boot',
             management:'io.spring.dependency-management',
