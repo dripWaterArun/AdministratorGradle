@@ -9,3 +9,4 @@ include 'backend-service-demo'
 include 'admin-platform:backend-service-demo'
 findProject(':admin-platform:backend-service-demo')?.name = 'backend-service-demo'
 println '初始化阶段开始执行.....'
+

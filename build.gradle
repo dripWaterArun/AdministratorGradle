@@ -175,10 +175,10 @@ configure(subprojects.findAll {it.name == "$platform" || it.name == "$api" || it
             )
 
             //运行时
-            runtime (
-                    //springboot 热部署
-                    rootProject.ext.dependencieAll.subprojects.dependencies.devtools
-            )
+//            runtime (
+//                    //springboot 热部署
+//                    rootProject.ext.dependencieAll.subprojects.dependencies.devtools
+//            )
         }
     }
 
