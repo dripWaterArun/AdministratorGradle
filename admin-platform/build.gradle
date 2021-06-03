@@ -1,0 +1,14 @@
+/** 主业务模块 **/
+subprojects {
+    dependencies {
+        /**依赖其他项目 start **/
+        //注入pojo
+//        implementation project("$rootProject.ext.dependencieAll.project.modulePojo")
+
+//        implementation (
+//                //注入 RocketMQ
+//                "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.rocketMQ"
+//        )
+        /**依赖其他项目 end **/
+    }
+}

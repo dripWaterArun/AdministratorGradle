@@ -1,0 +1,220 @@
+/** 用来存放应用中的所有配置变量，统一管理，而不再是每个 moudle 里都自己写一份，修改起来更加的方便 */
+ext {
+  /*
+      分类定义：这样定义使分类更加合理，其实就是一个map，
+      在map中定义key和value，定义好之后，直接在根工程中引入
+   */
+  /** 管理版本（imports 和 subprojects 子项目中的依赖版本号）*/
+    //1.静态块中的变量
+    buildscript = [
+          dependencies:[
+                  managementVersion :'1.0.9.RELEASE',
+                  springBootVersion : '2.2.10.RELEASE'
+          ]
+    ]
+
+    //2.所有子项目中的变量
+    subprojects = [
+          dependencyManagement : [
+                  springCloudVersion :'Hoxton.SR8',
+                  springCloudAlibabaVersion :'2.2.3.RELEASE'
+          ]
+    ]
+
+    //3.部分子项目共通的变量
+    configure = [
+            dependencies : [
+                    groovyVersion:'3.0.5',
+                    platformVersion:'Cairo-SR8',
+            ]
+    ]
+
+    /** maven 下载地址 */
+    mavenUrl = [
+            //maven私服，阿里云镜像
+            alibaba:'https://maven.aliyun.com/repository/public'
+    ]
+
+    /** 项目信息 */
+    projectIno = [
+            encoding:'UTF-8',
+            group:'com.core',
+            version:'1.0-SNAPSHOT',
+    ]
+
+    /** 部分模块共通配置 模块名称集合 */
+    //compileOnly 共通依赖配置
+    holderProjects = [platform]
+    /** 插件管理 */
+    plugins = [
+            idea:'idea',
+            java:'java',
+            maven:'maven',
+            groovy:'groovy',
+            library:'java-library',
+            boot:'org.springframework.boot',
+            management:'io.spring.dependency-management',
+    ]
+
+    /** 所有项目依赖 jar 包 **/
+    dependencieAll= [
+            //配置工程的"插件"依赖地址
+            classpath : [
+                    //springboot 插件
+                    springBootPlugin:"org.springframework.boot:spring-boot-gradle-plugin:$rootProject.ext.buildscript.dependencies.springBootVersion",
+                    //maven jar包统一管理版本 插件
+                    dependencyManagementPlugin:"io.spring.gradle:dependency-management-plugin:$rootProject.ext.buildscript.dependencies.managementVersion",
+            ],
+
+            //父工程统一管理子工程依赖版本
+            dependencyManagement:[
+                    imports :[
+                            //springCloud
+                            springCloud:"org.springframework.cloud:spring-cloud-dependencies:$rootProject.ext.subprojects.dependencyManagement.springCloudVersion",
+                            //springCloud 阿里巴巴
+                            springCloudAlibaba:"com.alibaba.cloud:spring-cloud-alibaba-dependencies:$rootProject.ext.subprojects.dependencyManagement.springCloudAlibabaVersion"
+                    ],
+                    dependencies:[
+                            /***** mybatis-plus start *****/
+                            //p6spy 组件 执行 SQL 分析打印
+                            p6spy:'p6spy:p6spy',
+                            // mybatis-plus  代码生成器模板
+                            freemarker:'org.freemarker:freemarker',
+                            //mybatis-plus
+                            mybatisPlus:'com.baomidou:mybatis-plus',
+                            //mybatis-plus整合spring-boot
+                            mybatisPlusBoot:'com.baomidou:mybatis-plus-boot-starter',
+                            //mybatis plus 代码生成器依赖
+                            mybatisPlusGenerator:'com.baomidou:mybatis-plus-generator',
+                            /***** mybatis-plus end *****/
+
+                            /** pagehelper 分页插件 start **/
+                            jsqlparser:"com.github.jsqlparser:jsqlparser",
+                            pagehelper:"com.github.pagehelper:pagehelper-spring-boot-starter",
+                            /** pagehelper 分页插件 end **/
+
+                            /** 数据库 start **/
+                            //Alibaba DataBase Connection Pool 阿里巴巴的数据库连接池
+                            druid:'com.alibaba:druid',
+                            //MySql Driver MySql驱动
+                            mysqlconnector:'mysql:mysql-connector-java',
+                            /** 数据库 end **/
+
+                            /** Activiti 7 start **/
+                            activitiDruid:'org.activiti.activiti-dependencies:druid',
+                            activitiSpringBoot:'org.activiti:activiti-spring-boot-starter',
+                            /** Activiti 7 end **/
+
+                            /** springCloudAlibaba 相关配置 start **/
+                            /** springCloudAlibaba 相关配置 end **/
+
+                            /** swagger start **/
+                            swagger2: 'io.springfox:springfox-swagger2',
+                            swaggerUi: 'io.springfox:springfox-swagger-ui',
+                            //防止swagger 报错 Illegal DefaultValue null for parameter type integer
+                            swaggerModels: 'io.swagger:swagger-models',
+                            swaggerAnnotations: 'io.swagger:swagger-annotations',
+                            /** swagger end**/
+
+                            /** 其他依赖 start **/
+                            //jsonObject
+                            fastjson:'com.alibaba:fastjson',
+                            commonsNet:'commons-net:commons-net',
+                            //groovy
+                            groovy:'org.codehaus.groovy:groovy-all',
+                            //自动管理jar包版本号
+                            platform:'io.spring.platform:platform-bom',
+                            //RocketMQ
+                            rocketMQ:'org.apache.rocketmq:rocketmq-spring-boot-starter'
+                            /** 其他依赖 start **/
+
+                    ]
+            ],
+
+            //所有子项目共通依赖
+            subprojects:[
+                    dependencies:[
+                            //Spring Boot Web Starter springMvc整合
+                            springBootWeb:'org.springframework.boot:spring-boot-starter-web',
+                            springBootTest:'org.springframework.boot:spring-boot-starter-test',
+                            vintage:'org.junit.vintage',
+                            engine:'junit-vintage-engine',
+
+                            //springboot 热部署
+                            devtools:'org.springframework.boot:spring-boot-devtools',
+                            //actuator 访问：localhost:8090/actuator
+                            actuator:'org.springframework.boot:spring-boot-starter-actuator',
+
+                            /** Fegin (start) **/
+                            //Fegin 性能优化，引入httpclient
+                            feignHttp:'io.github.openfeign:feign-httpclient',
+                            //远程调用 openfeign
+                            openfeign:'org.springframework.cloud:spring-cloud-starter-openfeign',
+                            /** Fegin (end) **/
+
+                            /************ springCloudAlibaba 组件 ************/
+                            //Sentinel 容错
+                            sentinel:'com.alibaba.cloud:spring-cloud-starter-alibaba-sentinel',
+                            //注册中心 Nacos (config 实现配置的动态变更)
+                            nacosConfig:'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config',
+                            //注册中心 Nacos (discovery 实现服务的注册与发现)
+                            nacosStarter:'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery',
+                            /************ springCloudAlibaba 组件 ************/
+
+                            /** 子项目独立依赖 jar包 */
+                            //Logback 日志 版本号由 platform 自动管理
+                            logback:'ch.qos.logback:logback-classic',
+                            //常用工具类
+                            commonsLang3:'org.apache.commons:commons-lang3',
+                            httpclient:'org.apache.httpcomponents:httpclient',
+                    ]
+            ],
+
+            //本地项目依赖
+            project:[
+                    /** 1.主业务模块   admin_platform */
+
+                    /** 2.通用项目模块 root_api */
+
+                    /** 3.共通工具模块 root_common */
+                    //注入日志
+                    commonLog:":$common:$log",
+                    //注入共通工具类
+                    commonUtil:":$common:$commonUtil",
+                    //注入swagger
+                    commonSwagger:":$common:$swagger",
+                    //注入MyBatis-Plus
+                    commonMybatisPlus:":$common:$mybatisPlus",
+
+                    /** 4.实体类模块 root_module */
+                    //注入pojo
+                    modulePojo:":$modules:$pojo",
+
+                    /** 5.第三方插件模块 root_plugin */
+                    //注入 redis 缓存
+                    moduleRedis:"$modules:$redis",
+                    //注入 RocketMQ 消息队列
+                    moduleRocketMQ:"$modules:$rocketmq",
+                    /** 6.系统模块 root_system */
+
+            ]
+    ]
+
+
+}
+
+/** 在根工程中通过 api 配置管理子工程 **/
+/*
+    第一个参数是指定的路径，就是我们要操作的子project的路径,这里直接传入project的名字即可,
+    第二个参数是闭包：通过闭包可以对我们指定路径的project进行配置，闭包的参数就是我们当前的project,
+    如果我们直接传app，就是从根工程下，开始找name为app的project,建议初学的时候，将闭包都加上参数.
+ */
+//这里的闭包就不写参数了，默认参数就是 project
+/*
+project(":root_api") {
+    subprojects {
+        //在多模块下,忽略打包依赖模块
+        jar.enabled = true
+        bootJar.enabled = false
+    }
+}*/

@@ -1,0 +1,273 @@
+/** Gradle 项目依赖管理 配置文件 根目录 **/
+
+/** 代码块中脚本优先执行，声明 gradle 脚本自身需要使用的资源,必须放到页面第一个位置 */
+buildscript {
+    /** from 引入文件名字，会从当前工程下寻找名字为 'common.gradle'，会把找到的工程所有的内容都引入进来 */
+    //引入共通常量配置文件
+    apply from: this.file('common.gradle')
+    //配置仓库
+    repositories {
+        //本地maven仓库
+        mavenLocal()
+        //阿里巴巴国内镜像
+        maven {url "$rootProject.ext.mavenUrl.alibaba"}
+        mavenCentral()
+    }
+
+    dependencies {
+        //插件下载
+        classpath(
+                //springboot 插件
+                rootProject.ext.dependencieAll.classpath.springBootPlugin,
+                //maven jar包统一管理版本 插件
+                rootProject.ext.dependencieAll.classpath.dependencyManagementPlugin,
+                'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        )
+    }
+}
+
+/** 项目版本号 */
+group rootProject.ext.projectIno.group
+version rootProject.ext.projectIno.version
+
+/ ** allprojects对所有的项目有效 */
+allprojects {
+    //引用插件
+    apply plugin: rootProject.ext.plugins.idea
+    apply plugin: rootProject.ext.plugins.boot
+    apply plugin: rootProject.ext.plugins.maven
+    apply plugin: rootProject.ext.plugins.library
+    apply plugin: rootProject.ext.plugins.management
+
+    //指定编码格式
+    tasks.withType(JavaCompile) {
+        options.encoding = rootProject.ext.projectIno.encoding
+    }
+
+    //在多模块下,忽略打包依赖模块
+    bootJar.enabled = false
+
+    //配置下载仓库，按顺序下载，第一个没有就找第二个
+    repositories {
+        //本地maven仓库
+        mavenLocal()
+        //maven私服，阿里云镜像
+        maven{ url "$rootProject.ext.mavenUrl.alibaba"}
+        mavenCentral()
+    }
+}
+
+/** subprojects对所有的项目有效也可以个性化定制 */
+subprojects {
+
+    //maven dependencyManagement 插件，统一管理依子项目依赖版本
+    dependencyManagement {
+        //应用于所有项目，类似于父类
+        imports {
+            //springCloud
+            mavenBom rootProject.ext.dependencieAll.dependencyManagement.imports.springCloud
+            //springCloud 阿里巴巴
+            mavenBom rootProject.ext.dependencieAll.dependencyManagement.imports.springCloudAlibaba
+        }
+        /** 统一管理子项目的jar包版本 **/
+        dependencies {
+            /***** mybatis-plus start *****/
+            //mybatis plus 代码生成器模板
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.freemarker:$freemarkerVersion"
+            //mybatis-plus
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.mybatisPlus:$mybatisPlusVersion"
+            //mybatis plus 代码生成器依赖
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.mybatisPlusGenerator:$mybatisPlusVersion"
+            //mybatis-plus整合spring-boot
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.mybatisPlusBoot:$mybatisPlusVersion"
+            //p6spy 组件 执行 SQL 分析打印
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.p6spy:$p6spy"
+            /***** mybatis-plus end *****/
+
+            /** pagehelper 分页插件 start **/
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.jsqlparser:$jsqlparserVersion"
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.pagehelper:$pagehelperBootVersion"
+            /** pagehelper 分页插件 end **/
+
+            /** 数据库 start **/
+            //Alibaba DataBase Connection Pool 阿里巴巴的数据库连接池
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.druid:$druidVersion"
+            //MySql Driver MySql驱动
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.mysqlconnector:$mysqlVersion"
+            /** 数据库 end **/
+
+            /** Activiti 7 start **/
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.activitiDruid:$activitiVersion"
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.activitiSpringBoot:$activitiVersion"
+            /** Activiti 7 end **/
+
+            /** springCloudAlibaba 相关配置 start **/
+            /** springCloudAlibaba 相关配置 end **/
+
+            /** swagger start **/
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.swagger2:$swaggerVersion"
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.swaggerUi:$swaggerVersion"
+            //防止swagger 报错 Illegal DefaultValue null for parameter type integer
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.swaggerModels:$swaggerAnnotationsVersion"
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.swaggerAnnotations:$swaggerAnnotationsVersion"
+            /** swagger end**/
+
+            /** 其他依赖 start **/
+            //RocketMQ
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.rocketMQ:$rocketMQVersion"
+            //jsonObject
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.fastjson:$fastjsonVersion"
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.commonsNet:$commonsNetVersion"
+            //groovy
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.groovy:$rootProject.ext.configure.dependencies.groovyVersion"
+            //自动管理jar包版本号
+            dependency "$rootProject.ext.dependencieAll.dependencyManagement.dependencies.platform:$rootProject.ext.configure.dependencies.platformVersion"
+            /** 其他依赖 start **/
+        }
+    }
+
+    configurations {
+        // 所有需要忽略的包定义在此
+        //springboot testImplementation 忽略依赖
+        //all*.exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+
+        //all*.exclude group: 'commons-httpclient'
+        //all*.exclude group: 'commons-beanutils', module: 'commons-beanutils'
+    }
+
+    //项目中所使用到的依赖，这里添加的依赖会被所有项目，包括root项目继承
+    dependencies {}
+}
+
+/** 部分子项目共通的配置 */
+//subprojects.findAll {it.name.contains('war') 查找所有带war的项目
+//configure需要传入一个Project对象的数组，通过查找所有项目名包含 admin 的子项目，为其设置共通属性
+configure(subprojects.findAll {it.name == "$platform" || it.name == "$api" || it.name == "$common" || it.name == "$modules" || it.name == "$plugin" || it.name == "$system" }){
+
+    jar.enabled = true
+
+    //子项目的子项目
+    subprojects {
+        //引用 groovy 插件
+        apply plugin: rootProject.ext.plugins.groovy
+
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+
+        //添加子项目共通的依赖
+        dependencies {
+            //Spring Boot Web Starter springMvc整合
+            implementation rootProject.ext.dependencieAll.subprojects.dependencies.springBootWeb
+            testImplementation(rootProject.ext.dependencieAll.subprojects.dependencies.springBootTest) {
+                exclude group: "$rootProject.ext.dependencieAll.subprojects.dependencies.vintage",
+                        module: "$rootProject.ext.dependencieAll.subprojects.dependencies.engine"
+            }
+            //该依赖方式所依赖的库不会传递，只会在当前module中生效
+            implementation (
+                    //groovy
+                    rootProject.ext.dependencieAll.dependencyManagement.dependencies.groovy
+            )
+
+            //占位编译：只在编译时有效，不会参与打包
+            compileOnly (
+                    //自动管理jar包版本号
+                    rootProject.ext.dependencieAll.dependencyManagement.dependencies.platform
+            )
+
+            //运行时
+            runtime (
+                    //springboot 热部署
+                    rootProject.ext.dependencieAll.subprojects.dependencies.devtools
+            )
+        }
+    }
+
+    /** 部分模块共通配置 */
+    if (rootProject.ext.holderProjects.contains(it.name)){
+        subprojects {
+            //在多模块下,不忽略打包依赖的模块
+            bootJar.enabled = true
+            //依赖
+            dependencies {
+                compileOnly (
+                        //p6spy 组件 执行 SQL 分析打印 (该插件有性能损耗，不建议生产环境使用)
+                        rootProject.ext.dependencieAll.dependencyManagement.dependencies.p6spy
+                )
+                implementation (
+                        /************ springCloudAlibaba 组件 ************/
+                        //actuator 访问：localhost:8090/actuator
+                        rootProject.ext.dependencieAll.subprojects.dependencies.actuator,
+                        //Sentinel 容错 使用/actuator/sentinel
+                        rootProject.ext.dependencieAll.subprojects.dependencies.sentinel,
+
+                        /** 注册中心 Nacos (start) */
+                        //(config 实现配置的动态变更)
+                        rootProject.ext.dependencieAll.subprojects.dependencies.nacosConfig,
+                        //(discovery 实现服务的注册与发现)
+                        rootProject.ext.dependencieAll.subprojects.dependencies.nacosStarter,
+                        /** 注册中心 Nacos (end) */
+
+                        /** Fegin (start) **/
+                        //Fegin 性能优化，引入httpclient
+                        rootProject.ext.dependencieAll.subprojects.dependencies.feignHttp,
+                        //Fegin 远程调用
+                        rootProject.ext.dependencieAll.subprojects.dependencies.openfeign
+                        /** Fegin (end) **/
+                        /************ springCloudAlibaba 组件 ************/
+                )
+            }
+        }
+    }
+
+    /**
+     * gradle 生命周期
+     * 1.初始化阶段：initialization
+     * 会读出我们整个流程有多少个 Project
+     * 解析整个工程中有所有 Project,构建所有的 Project 对应的 project 对象。
+     *
+     * 2.配置阶段：Confguration
+     * 解析所有的 projects对象中 task,构建好所有task的拓扑图。
+     * 也就是 task 的依赖关系，有了 task 的依赖关系图，在执行阶段就可以正确
+     * 执行我们想要执行的那个task，以及依赖task，我们的监听方法也都是围绕配置
+     * 阶段之前，和配置阶段之后来进行的。
+     *
+     * 3.执行阶段：Execution
+     * 执行具体的 task 及其依赖 task。
+     *
+     */
+
+
+    /** gradle中常用监听方法 */
+
+    /** 1.配置阶段开始前的监听回调（常用） */
+    //在配置阶段开始之前，也就是初始化阶段和配置阶段之间的监听
+/*
+    this.beforeEvaluate {
+        println '配置阶段开始之前....'
+    }
+*/
+
+    /** 2.配置阶段完成以后的回调（常用） */
+    //在配置阶段之后，和在执行阶段之前的监听
+/*    this.afterEvaluate {
+        println '配置阶段执行完毕....'
+    }*/
+
+    /** 3.gradle执行完毕以后的回调监听 */
+    //gradle生命周期执行完之后的监听
+/*    this.gradle.buildFinished {
+        println '执行阶段执行完毕....'
+    }*/
+
+    /** 4.等同于 beforeEvaluate (了解) */
+    //this.gradle.beforeProject {}
+
+    /** 5.等同于 afterEvaluate (了解) */
+    //this.gradle.afterProject {}
+
+    /** 6.添加监听 (了解) */
+    //this.gradle.addListener()
+    //this.gradle.addShutdownHook {}
+    //this.gradle.addBuildListener()
+    //this.gradle.addProjectEvaluationListener()
+}
