@@ -27,7 +27,7 @@ buildscript {
 }
 
 plugins {
-    id ('org.jetbrains.kotlin.jvm') version "$rootProject.ext.configure.dependencies.kotlinVersion"
+    id ('org.jetbrains.kotlin.jvm') version "$kotlinVersion"
 }
 
 /** 项目版本号 */
