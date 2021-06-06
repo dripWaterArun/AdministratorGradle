@@ -25,6 +25,7 @@ ext {
     configure = [
             dependencies : [
                     groovyVersion:'3.0.5',
+                    kotlinVersion:'1.3.72',
                     platformVersion:'Cairo-SR8',
             ]
     ]
@@ -53,6 +54,7 @@ ext {
             maven:'maven-publish',
             library:'java-library',
             boot:'org.springframework.boot',
+            kotlin:'org.jetbrains.kotlin.jvm',
             management:'io.spring.dependency-management',
     ]
 

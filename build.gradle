@@ -1,10 +1,10 @@
 /** Gradle 项目依赖管理 配置文件 根目录 **/
-
 /** 代码块中脚本优先执行，声明 gradle 脚本自身需要使用的资源,必须放到页面第一个位置 */
 buildscript {
     /** from 引入文件名字，会从当前工程下寻找名字为 'common.gradle'，会把找到的工程所有的内容都引入进来 */
     //引入共通常量配置文件
     apply from: this.file('common.gradle')
+
     //配置仓库
     repositories {
         //本地maven仓库
@@ -17,13 +17,17 @@ buildscript {
     dependencies {
         //插件下载
         classpath(
+                //'org.jetbrains.kotlin.jvm:1.3.72',
                 //springboot 插件
                 rootProject.ext.dependencieAll.classpath.springBootPlugin,
                 //maven jar包统一管理版本 插件
-                rootProject.ext.dependencieAll.classpath.dependencyManagementPlugin,
-                'com.github.dcendents:android-maven-gradle-plugin:1.5'
+                rootProject.ext.dependencieAll.classpath.dependencyManagementPlugin
         )
     }
+}
+
+plugins {
+    id ('org.jetbrains.kotlin.jvm') version "$rootProject.ext.configure.dependencies.kotlinVersion"
 }
 
 /** 项目版本号 */
@@ -32,6 +36,7 @@ version rootProject.ext.projectIno.version
 
 / ** allprojects对所有的项目有效 */
 allprojects {
+
     //引用插件
     apply plugin: rootProject.ext.plugins.idea
     apply plugin: rootProject.ext.plugins.boot
@@ -45,6 +50,7 @@ allprojects {
     }
 
     //在多模块下,忽略打包依赖模块
+    jar.enabled = false
     bootJar.enabled = false
 
     //配置下载仓库，按顺序下载，第一个没有就找第二个
@@ -148,16 +154,19 @@ configure(subprojects.findAll {it.name == "$platform" || it.name == "$api" || it
 
     //子项目的子项目
     subprojects {
+
         //引用 groovy 插件
         apply plugin: rootProject.ext.plugins.groovy
+        apply plugin: rootProject.ext.plugins.kotlin
 
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
-
+        
         //添加子项目共通的依赖
         dependencies {
             //Spring Boot Web Starter springMvc整合
             implementation rootProject.ext.dependencieAll.subprojects.dependencies.springBootWeb
+            implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
             testImplementation(rootProject.ext.dependencieAll.subprojects.dependencies.springBootTest) {
                 exclude group: "$rootProject.ext.dependencieAll.subprojects.dependencies.vintage",
                         module: "$rootProject.ext.dependencieAll.subprojects.dependencies.engine"
@@ -180,6 +189,13 @@ configure(subprojects.findAll {it.name == "$platform" || it.name == "$api" || it
 //                    rootProject.ext.dependencieAll.subprojects.dependencies.devtools
 //            )
         }
+    }
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "1.8"
     }
 
     /** 部分模块共通配置 */
