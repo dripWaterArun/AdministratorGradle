@@ -8,4 +8,6 @@ include 'root-system'
 include 'admin-platform:backend-service-demo'
 findProject(':admin-platform:backend-service-demo')?.name = 'backend-service-demo'
 println '初始化阶段开始执行.....'
+include 'admin-platform:daixu'
+findProject(':admin-platform:daixu')?.name = 'daixu'
 

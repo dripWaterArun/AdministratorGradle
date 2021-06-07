@@ -17,7 +17,6 @@ buildscript {
     dependencies {
         //插件下载
         classpath(
-                //'org.jetbrains.kotlin.jvm:1.3.72',
                 //springboot 插件
                 rootProject.ext.dependencieAll.classpath.springBootPlugin,
                 //maven jar包统一管理版本 插件
@@ -50,7 +49,7 @@ allprojects {
     }
 
     //在多模块下,忽略打包依赖模块
-    jar.enabled = false
+    //jar.enabled = false
     bootJar.enabled = false
 
     //配置下载仓库，按顺序下载，第一个没有就找第二个
