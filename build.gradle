@@ -50,6 +50,7 @@ allprojects {
 
     //在多模块下,忽略打包依赖模块
     //jar.enabled = false
+    jar.enabled = false
     bootJar.enabled = false
 
     //配置下载仓库，按顺序下载，第一个没有就找第二个
@@ -149,7 +150,7 @@ subprojects {
 //configure需要传入一个Project对象的数组，通过查找所有项目名包含 admin 的子项目，为其设置共通属性
 configure(subprojects.findAll {it.name == "$platform" || it.name == "$api" || it.name == "$common" || it.name == "$modules" || it.name == "$plugin" || it.name == "$system" }){
 
-    jar.enabled = true
+    //jar.enabled = true
 
     //子项目的子项目
     subprojects {
@@ -160,6 +161,13 @@ configure(subprojects.findAll {it.name == "$platform" || it.name == "$api" || it
 
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
+
+        compileKotlin {
+            kotlinOptions.jvmTarget = "1.8"
+        }
+        compileTestKotlin {
+            kotlinOptions.jvmTarget = "1.8"
+        }
         
         //添加子项目共通的依赖
         dependencies {
@@ -190,18 +198,14 @@ configure(subprojects.findAll {it.name == "$platform" || it.name == "$api" || it
         }
     }
 
-    compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-
     /** 部分模块共通配置 */
     if (rootProject.ext.holderProjects.contains(it.name)){
         subprojects {
             //在多模块下,不忽略打包依赖的模块
+            //jar.enabled = false
+            jar.enabled = true
             bootJar.enabled = true
+
             //依赖
             dependencies {
                 compileOnly (
